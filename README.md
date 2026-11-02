@@ -21,8 +21,6 @@ remote care in a focused Android experience.
   interlock copy.
 - Responsive Compose layout with a hydration dashboard, live health cards,
   weekly insights, household activity, and privacy settings.
-- Existing backend contract and tests under
-  `aquasense-backend-main/aquasense-backend-main`.
 
 ## Project layout
 
@@ -33,7 +31,6 @@ remote care in a focused Android experience.
 │       ├── data/                # REST/Auth contract and demo data
 │       ├── ui/                  # onboarding, auth, dashboard, insights
 │       └── MainActivity.kt
-├── aquasense-backend-main/      # Fastify + Supabase + MQTT backend
 ├── AquaSense Stage 1 Abstract...pdf
 └── README.md
 ```
@@ -52,16 +49,11 @@ The demo shows a connected AquaSense One, live-looking TDS/tank/filter values,
 hydration progress, household dispenses, insights, and safe simulated ACKs for
 Flush filter and Drain tank. No credentials are required for this path.
 
-## Connect the real backend
+## Connect the Round 2 backend
 
-The backend guide is the source of truth for Supabase, database migrations,
-Realtime, MQTT, and Raspberry Pi setup:
-
-- `aquasense-backend-main/aquasense-backend-main/GUIDE.md`
-- `aquasense-backend-main/aquasense-backend-main/README.md`
-
-After the backend is running, create or edit `local.properties` in the project
-root (Android Studio keeps this file out of Git):
+The backend is maintained separately from this Android repository. Once your
+friend's Fastify/Supabase service is running, create or edit `local.properties`
+in the project root (Android Studio keeps this file out of Git):
 
 ```properties
 SUPABASE_URL=https://your-project.supabase.co
@@ -69,36 +61,22 @@ SUPABASE_ANON_KEY=your-client-anon-or-publishable-key
 AQUASENSE_API_URL=http://10.0.2.2:3000
 ```
 
-Use `http://10.0.2.2:3000` from the Android emulator for a backend running on
+Use `http://10.0.2.2:3000` from the Android emulator for a service running on
 the development machine. Use the machine's LAN IP (for example,
 `http://192.168.1.20:3000`) for a physical phone on the same network. Never put
-the backend `SUPABASE_SERVICE_ROLE_KEY` or MQTT password in this file or the
-mobile app.
+the backend service-role key or MQTT password in this file or the mobile app.
 
 When configured, the app signs users in through Supabase Auth, sends the JWT as
 `Authorization: Bearer ...` to the Fastify `/v1` routes, and renders the
-dashboard from the backend's `dashboard_summary` view. The refresh action is
-the explicit live-data fallback while the backend's Supabase Realtime channel
-is being wired for production push updates.
+dashboard from the service's dashboard summary. The refresh action is the
+explicit live-data fallback while the service's Realtime channel is wired for
+production push updates.
 
 The app already accepts an optional `current_ph` field in a future dashboard
 response and shows the calibrated demo value. The supplied Round 2 backend
 schema currently publishes TDS, tank, filter, and temperature but not pH; add
 that field to the backend/Supabase status contract when the pH sensor is ready
 instead of treating the demo value as a live measurement.
-
-## Backend checks
-
-```bash
-cd aquasense-backend-main/aquasense-backend-main
-pnpm install
-pnpm typecheck
-pnpm test
-pnpm build
-```
-
-The backend has its own `.env.example`; keep `.env` local. The public health
-check is `curl http://localhost:3000/health`.
 
 ## App checks
 
@@ -121,8 +99,8 @@ Android Studio environment for the final APK/emulator smoke test.
 4. Return to **Overview**, open **Care**, and tap **Flush filter**. Confirm it
    and show the simulated command acknowledgement snackbar.
 5. Open **Settings** to show the edge privacy and offline buffering promises.
-6. For a real-device demo, configure the backend and use **Connect a purifier**
-   with the UUID created by the Supabase seed step.
+6. For a real-device demo, configure the separately maintained backend and use
+   **Connect a purifier** with the UUID created by its device setup.
 
 ## Safety and privacy notes
 
