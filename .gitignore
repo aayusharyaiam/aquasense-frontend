@@ -1,0 +1,21 @@
+# Android / Gradle
+.gradle/
+.pnpm-store/
+build/
+*/build/
+local.properties
+*.iml
+.idea/
+
+# Local secrets and tooling
+.env
+.env.*
+!.env.example
+captures/
+externalNativeBuild/
+*.apk
+*.aab
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
